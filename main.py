@@ -5,7 +5,6 @@ import logging
 import os
 import re
 import sys
-import yaml  # Added to handle YAML for potential future configuration
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -64,10 +63,6 @@ def analyze_sudoers_file(sudoers_file_path):
         print(f"Error reading sudoers file: {e}")
         return vulnerabilities
 
-    # Basic regex patterns for analysis
-    ALL_PATTERN = r"ALL(\s*NOPASSWD:)?\s*ALL"  # Matches "ALL ALL" with optional NOPASSWD
-    NOPASSWD_PATTERN = r"NOPASSWD:"  # Matches NOPASSWD
-    
     for i, line in enumerate(sudoers_content):
         line = line.strip()
 
@@ -75,30 +70,51 @@ def analyze_sudoers_file(sudoers_file_path):
         if not line or line.startswith("#"):
             continue
 
-        # Check for insecure ALL ALL configurations
-        if "ALL=(ALL)" in line and not re.search(NOPASSWD_PATTERN, line):
-             vulnerabilities.append({
+        commands = _command_list(line)
+        if commands is None:
+            continue
+
+        # The runas part in parentheses is who the command runs as, not
+        # what can be run. Testing the whole line for "ALL=(ALL)" flagged
+        # entries like "alice ALL=(ALL) /usr/bin/id", where the only
+        # command allowed is id. Only the command list decides this.
+        if commands == "ALL":
+            vulnerabilities.append({
                 "line_number": i + 1,
                 "description": "User/Group can run any command as root, consider restricting.",
                 "line": line
             })
-        if re.search(ALL_PATTERN, line):
-            vulnerabilities.append({
+            if "NOPASSWD:" in line:
+                vulnerabilities.append({
                     "line_number": i + 1,
-                    "description": "Insecure ALL ALL configuration found, consider restricting.",
+                    "description": "NOPASSWD for all commands found, this poses a security risk.",
                     "line": line
                 })
 
-        # Check for NOPASSWD for ALL commands (potential risk)
-        if re.search(NOPASSWD_PATTERN, line) and "ALL=(ALL)" in line:
-            vulnerabilities.append({
-                "line_number": i + 1,
-                "description": "NOPASSWD for all commands found, this poses a security risk.",
-                "line": line
-            })
-
-
     return vulnerabilities
+
+
+def _command_list(line):
+    """Return the command part of a sudoers user specification.
+
+    The shape is "user hosts = (runas) tags: commands". Everything up to
+    the first "=" is the host list, the parenthesised part after it is
+    the runas user, and tags such as NOPASSWD: sit between that and the
+    commands. Returns None for lines that are not user specifications
+    (defaults, aliases, includes), so the caller skips them.
+    """
+    if "=" not in line:
+        return None
+    rest = line.split("=", 1)[1].strip()
+    if rest.startswith("("):
+        closing = rest.find(")")
+        if closing == -1:
+            return None
+        rest = rest[closing + 1:].strip()
+    # Strip any run of tags; each ends with a colon and has no spaces.
+    while re.match(r"^[A-Z_]+:\s*", rest):
+        rest = re.sub(r"^[A-Z_]+:\s*", "", rest)
+    return rest.strip()
 
 
 def print_vulnerabilities(vulnerabilities, output_file=None, verbose=False):
@@ -114,7 +130,7 @@ def print_vulnerabilities(vulnerabilities, output_file=None, verbose=False):
     if not vulnerabilities:
         if verbose:
             print("No vulnerabilities found.")  #Only print when verbose
-        return
+        return True
 
     output = ""  # Accumulate output string for file writing
 
@@ -132,8 +148,10 @@ def print_vulnerabilities(vulnerabilities, output_file=None, verbose=False):
         except Exception as e:
             logging.error(f"Error writing to output file: {e}")
             print(f"Error writing to output file: {e}")
+            return False
     else:
         print(output)
+    return True
 
 
 def main():
@@ -151,8 +169,10 @@ def main():
     # Analyze the sudoers file
     vulnerabilities = analyze_sudoers_file(args.sudoers_file)
 
-    # Print the vulnerabilities
-    print_vulnerabilities(vulnerabilities, args.output_file, args.verbose)
+    # Print the vulnerabilities. A report that could not be written is a
+    # failed run, even though the analysis itself succeeded.
+    if not print_vulnerabilities(vulnerabilities, args.output_file, args.verbose):
+        sys.exit(1)
 
 
 if __name__ == "__main__":
