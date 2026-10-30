@@ -1,13 +1,13 @@
 ![Banner](banner.png)
 
-# cha-udit-SudoRightsAnalyzer
+# cha-audit-sudo-rights-analyzer
 Analyzes sudoers file for overly permissive or insecure sudo rights assignments, highlighting potential privilege escalation vulnerabilities. - Focused on Audits system configuration settings against security hardening benchmarks (e.g., CIS benchmarks). Checks for insecure configurations and generates reports with recommendations for remediation. Supports various operating systems (Windows, Linux, macOS).
 
 ## Install
-`git clone https://github.com/ShadowGuardAI/cha-udit-sudorightsanalyzer`
+`git clone https://github.com/ShadowGuardAI/cha-audit-sudo-rights-analyzer`
 
 ## Usage
-`./cha-udit-sudorightsanalyzer [params]`
+`./cha-audit-sudo-rights-analyzer [params]`
 
 ## Parameters
 - `-h`: Show help message and exit
