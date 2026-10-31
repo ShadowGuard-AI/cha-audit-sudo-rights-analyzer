@@ -43,7 +43,10 @@ def analyze_sudoers_file(sudoers_file_path):
 
     Returns:
         list: A list of dictionaries, where each dictionary represents a potential vulnerability.
-               Returns an empty list if no vulnerabilities are found or an error occurs.
+               Returns an empty list only when the file was read and no
+               vulnerabilities were found. Returns None when the file could
+               not be read, so the caller can fail the run instead of
+               reporting a clean result for a file it never saw.
     """
     vulnerabilities = []
 
@@ -53,15 +56,15 @@ def analyze_sudoers_file(sudoers_file_path):
     except FileNotFoundError:
         logging.error(f"Sudoers file not found: {sudoers_file_path}")
         print(f"Error: Sudoers file not found: {sudoers_file_path}")
-        return vulnerabilities
+        return None
     except PermissionError:
         logging.error(f"Permission denied to read sudoers file: {sudoers_file_path}")
         print(f"Error: Permission denied to read sudoers file: {sudoers_file_path}")
-        return vulnerabilities
+        return None
     except Exception as e:
         logging.error(f"Error reading sudoers file: {e}")
         print(f"Error reading sudoers file: {e}")
-        return vulnerabilities
+        return None
 
     for i, line in enumerate(sudoers_content):
         line = line.strip()
@@ -166,8 +169,13 @@ def main():
         logging.error(f"Sudoers file not found: {args.sudoers_file}")
         sys.exit(1)
 
-    # Analyze the sudoers file
+    # Analyze the sudoers file. A read failure returns None: the run
+    # failed, and it must never be summarised as "no vulnerabilities".
     vulnerabilities = analyze_sudoers_file(args.sudoers_file)
+    if vulnerabilities is None:
+        print(f"Error: Analysis failed: could not read sudoers file: {args.sudoers_file}")
+        logging.error(f"Analysis failed: could not read sudoers file: {args.sudoers_file}")
+        sys.exit(1)
 
     # Print the vulnerabilities. A report that could not be written is a
     # failed run, even though the analysis itself succeeded.
