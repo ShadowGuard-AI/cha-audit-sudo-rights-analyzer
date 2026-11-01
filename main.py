@@ -66,6 +66,10 @@ def analyze_sudoers_file(sudoers_file_path):
         print(f"Error reading sudoers file: {e}")
         return None
 
+    # Only this one file is read. Modern sudoers setups keep most real
+    # grants in drop-in files pulled in by include lines, which this
+    # loop meets as comment shaped lines and skips, so the file most
+    # worth auditing is often the one this run never opens.
     for i, line in enumerate(sudoers_content):
         line = line.strip()
 
@@ -77,10 +81,12 @@ def analyze_sudoers_file(sudoers_file_path):
         if commands is None:
             continue
 
-        # The runas part in parentheses is who the command runs as, not
-        # what can be run. Testing the whole line for "ALL=(ALL)" flagged
-        # entries like "alice ALL=(ALL) /usr/bin/id", where the only
-        # command allowed is id. Only the command list decides this.
+        # This equality is the whole audit. Everything short of a
+        # literal ALL command list passes unseen: wildcard paths, an
+        # editor or pager that escapes to a shell, a single command
+        # granted as root with NOPASSWD. The report means no
+        # unrestricted grants were found, not that the grants found
+        # are safe.
         if commands == "ALL":
             vulnerabilities.append({
                 "line_number": i + 1,
