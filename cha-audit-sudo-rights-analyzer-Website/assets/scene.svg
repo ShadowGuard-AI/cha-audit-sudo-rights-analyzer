@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" role="img" aria-label="A porch in three depths: the fireplace glow breathes and the clock pendulum beats inside the doorway, the swing crosses in a slow arc that settles, and the door card turns a few degrees on its string">
+<rect x="0" y="0" width="1200" height="300" fill="#2e3a5c"/>
+<rect x="0" y="180" width="1200" height="120" fill="#7a5434"/>
+<g>
+<rect x="40" y="30" width="220" height="180" fill="#3a2c1e"/>
+<rect x="66" y="140" width="70" height="62" fill="#462810"/>
+<polygon points="86,202 101,162 116,202" fill="#e87a28">
+<animate attributeName="opacity" values="0.65;1;0.65" dur="7s" repeatCount="indefinite"/>
+</polygon>
+<ellipse cx="101" cy="176" rx="52" ry="34" fill="#f2b95e" opacity="0.35">
+<animate attributeName="opacity" values="0.2;0.45;0.2" dur="7s" repeatCount="indefinite"/>
+</ellipse>
+<rect x="168" y="44" width="38" height="158" fill="#604028"/>
+<circle cx="187" cy="62" r="15" fill="#f0ead2"/>
+<g>
+<line x1="187" y1="120" x2="187" y2="168" stroke="#d2b45a" stroke-width="3"/>
+<circle cx="187" cy="172" r="7" fill="#d2b45a"/>
+<animateTransform attributeName="transform" type="rotate" values="-9 187 120;9 187 120;-9 187 120" dur="2.4s" repeatCount="indefinite"/>
+</g>
+<rect x="52" y="168" width="86" height="12" fill="#967854"/>
+</g>
+<g>
+<animateTransform attributeName="transform" type="rotate" values="-2.2 765 10;2.2 765 10;0 765 10" keyTimes="0;0.5;1" dur="18s" repeatCount="indefinite"/>
+<line x1="560" y1="10" x2="575" y2="150" stroke="#80868e" stroke-width="5"/>
+<line x1="970" y1="10" x2="955" y2="150" stroke="#80868e" stroke-width="5"/>
+<rect x="545" y="150" width="440" height="34" fill="#6e482c"/>
+<g><rect x="560" y="156" width="410" height="9" fill="#d6e0ec"/><rect x="560" y="168" width="410" height="9" fill="#2f6db3"/></g>
+<g><rect x="560" y="196" width="410" height="10" fill="#d6e0ec"/><rect x="560" y="209" width="410" height="10" fill="#2f6db3"/><rect x="560" y="222" width="410" height="10" fill="#d6e0ec"/></g>
+<ellipse cx="905" cy="188" rx="34" ry="9" fill="#dedacf"/>
+<ellipse cx="888" cy="182" rx="7" ry="4" fill="#60964a"/><ellipse cx="906" cy="180" rx="7" ry="4" fill="#60964a"/><ellipse cx="922" cy="183" rx="7" ry="4" fill="#60964a"/>
+</g>
+<g>
+<circle cx="330" cy="196" r="7" fill="#d2b45a"/>
+<g>
+<rect x="316" y="206" width="28" height="36" fill="#f3eee0" stroke="#b4a88c"/>
+<animateTransform attributeName="transform" type="rotate" values="0 330 203;5 330 203;0 330 203;-4 330 203;0 330 203" dur="9s" repeatCount="indefinite"/>
+</g>
+</g>
+</svg>
